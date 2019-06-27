@@ -1,0 +1,6 @@
+[submodule "sources/rccn"]
+	path = sources/rccn
+	url = git@github.com:Rhizomatica/rccn.git
+[submodule "sources/puppet"]
+	path = sources/puppet
+	url = git@github.com:Rhizomatica/puppet.git

@@ -1,0 +1,134 @@
+---
+
+- name: Set up a local isolated vm for rccn development
+  hosts: rccn
+  become: yes
+
+  tasks:
+    # Create the rhizomatica group and user, which otherwise are
+    # created as part of the debian install workflow.
+    - name: Create the rhizomatica group
+      group:
+        name: rhizomatica
+
+    - name: Create the rhizomatica user
+      user:
+        name: rhizomatica
+        group: rhizomatica
+
+    - name: Install utilities for terminal interaction
+      apt:
+        pkg: ['ccze', 'tmux', 'python3-dev', 'emacs-nox', 'usbutils']
+        state: present
+        update_cache: yes
+        cache_valid_time: 600
+
+    - name: Install puppet
+      apt:
+        pkg: ['puppet', 'puppetmaster']
+        state: present
+        update_cache: yes
+        cache_valid_time: 600
+
+    - name: Create puppet environments directory
+      file:
+        path: /etc/puppet/code/environments
+        state: directory
+
+    # Link the puppet directories to the mounted development
+    # directories from the host instead of cloning directly as is done
+    # in the rhizomatica/puppet readme.
+    - name: Symlink the production directory to local puppet repo
+      file:
+        path: "/etc/puppet/code/environments/production"
+        src: "/home/vagrant/sources/puppet"
+        state: link
+
+    - name: Symlink the hiera directory to local puppet repo
+      file:
+        path: "/etc/puppet/code/hiera"
+        src: "/home/vagrant/sources/puppet/hieradata"
+        state: link
+
+    - name: Symlink the top level hiera file to the local puppet repo, overwriting the default.
+      file:
+        path: "/etc/puppet/hiera.yaml"
+        src: "/home/vagrant/sources/puppet/hiera.yaml"
+        state: link
+        force: yes
+
+    - name: Create the localized puppet config file
+      copy:
+        src: "/etc/puppet/code/hiera/site_template.yaml"
+        dest: "/etc/puppet/code/hiera/{{ ansible_nodename }}.yaml"
+        follow: yes
+        remote_src: yes
+
+    - name: Add puppet host
+      lineinfile:
+        dest: /etc/hosts
+        line: "127.0.0.1 puppet"
+        state: present
+
+    - name: Restart puppetmaster
+      service:
+        name: puppetmaster
+        state: restarted
+
+
+    # Install the old freeswitch deb requirements per readme
+    - name: Check if libssl1.0.0_1.0.1t-1+deb8u11_amd64.deb is installed
+      command: "dpkg-query -W libssl1.0.0_1.0.1t-1+deb8u11_amd64"
+      register: libssl1_0_0_check_deb
+      failed_when: libssl1_0_0_check_deb.rc > 1
+      changed_when: libssl1_0_0_check_deb.rc == 1
+
+    - name: Download libssl1_0_0
+      get_url:
+        url="http://security-cdn.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.0.0_1.0.1t-1+deb8u11_amd64.deb"
+        dest="/home/vagrant/libssl1_0_0_1.0.1t-1+deb8u11_amd64.deb"
+      when: libssl1_0_0_check_deb.rc == 1
+
+    - name: Install libssl1_0_0
+      apt:
+        deb: "/home/vagrant/libssl1_0_0_1.0.1t-1+deb8u11_amd64.deb"
+      when: libssl1_0_0_check_deb.rc == 1
+
+    - name: Check if libssl1.0.0-dbg_1.0.1t-1+deb8u11_amd64.deb is installed
+      command: "dpkg-query -W libssl1.0.0-dbg_1.0.1t-1+deb8u11_amd64"
+      register: libssl1_0_0_dbg_check_deb
+      failed_when: libssl1_0_0_dbg_check_deb.rc > 1
+      changed_when: libssl1_0_0_dbg_check_deb.rc == 1
+
+    - name: Download libssl1_0_0_dbg
+      get_url:
+        url="http://security-cdn.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.0.0-dbg_1.0.1t-1+deb8u11_amd64.deb"
+        dest="/home/vagrant/libssl1_0_0-dbg_1.0.1t-1+deb8u11_amd64.deb"
+      when: libssl1_0_0_dbg_check_deb.rc == 1
+
+    - name: Install libssl1_0_0_dbg
+      apt:
+        deb: "/home/vagrant/libssl1_0_0-dbg_1.0.1t-1+deb8u11_amd64.deb"
+      when: libssl1_0_0_dbg_check_deb.rc == 1
+
+    # Execute the rhizomatica automated install scripts.
+    - name: Run puppet install once
+      command: puppet agent --test --ignoreschedules
+      # Ignore errors about the missing audio repos and known postgres error
+      ignore_errors: true
+
+      # TODO(matt9j) This is pretty hacky but the official practice in
+      # the rhizo readme
+    - name: Run puppet install again
+      command: puppet agent --test --ignoreschedules
+      # Ignore errors about the missing audio repos and known postgres error
+      ignore_errors: true
+
+    - name: Run install configuration script
+      command: python ./install.py -f
+      args:
+        chdir: /var/rhizomatica/rccn
+
+    - name: Reboot machine after install
+      reboot:
+        reboot_timeout: 60

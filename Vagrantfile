@@ -31,13 +31,13 @@ Vagrant.configure(2) do |config|
       vb.customize ["modifyvm", :id, "--ioapic", "on"]
     end
 
-    #colte.vm.provision "ansible" do |ansible|
-    #  ansible.compatibility_mode = "2.0"
-    #  ansible.host_key_checking = false
-    #  ansible.playbook = "ansible/colte.yml"
-    #  ansible.raw_arguments = ['--timeout=20']
-    #  ansible.verbose = 'v'
-    #end
+    rccn.vm.provision "ansible" do |ansible|
+      ansible.compatibility_mode = "2.0"
+      ansible.host_key_checking = false
+      ansible.playbook = "ansible/rccn_local_dev.yml"
+      ansible.raw_arguments = ['--timeout=20']
+      ansible.verbose = 'v'
+    end
 
   end
 

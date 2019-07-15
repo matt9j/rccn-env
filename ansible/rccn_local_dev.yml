@@ -114,14 +114,7 @@
     # Execute the rhizomatica automated install scripts.
     - name: Run puppet install once
       command: puppet agent --test --ignoreschedules
-      # Ignore errors about the missing audio repos and known postgres error
-      ignore_errors: true
-
-      # TODO(matt9j) This is pretty hacky but the official practice in
-      # the rhizo readme
-    - name: Run puppet install again
-      command: puppet agent --test --ignoreschedules
-      # Ignore errors about the missing audio repos and known postgres error
+      # Ignore errors about the missing audio repos
       ignore_errors: true
 
     - name: Run install configuration script

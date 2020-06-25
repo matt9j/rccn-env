@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-box = "debian/contrib-stretch64"
+box = "debian/contrib-buster64"
 
 Vagrant.configure(2) do |config|
 
@@ -13,7 +13,8 @@ Vagrant.configure(2) do |config|
     rccn.vm.network "private_network", ip: "192.168.40.200"
     # Create a bridged public network for access to this VM on the lan.
     rccn.vm.network "public_network", ip: "192.168.99.90", bridge: "enp0s31f6"
-    rccn.vm.network "forwarded_port", guest: 80, host: 8080
+    rccn.vm.network "forwarded_port", guest: 80, host: 7080
+    rccn.vm.network "forwarded_port", guest: 8080, host: 8080
     rccn.vm.synced_folder "./sources/" , "/home/vagrant/sources", type: "virtualbox"
 
     rccn.vm.provider "virtualbox" do |vb|

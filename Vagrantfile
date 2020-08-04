@@ -10,7 +10,7 @@ Vagrant.configure(2) do |config|
     rccn.vm.hostname = "rccn"
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
-    rccn.vm.network "private_network", ip: "192.168.40.200"
+    rccn.vm.network "private_network", ip: "172.16.0.2"
     # Create a bridged public network for access to this VM on the lan.
     rccn.vm.network "public_network", ip: "192.168.99.90", bridge: "enp0s31f6"
     rccn.vm.network "forwarded_port", guest: 80, host: 7080
@@ -19,17 +19,17 @@ Vagrant.configure(2) do |config|
 
     rccn.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--memory", "4096"]
-      vb.customize ["modifyvm", :id, "--cpus", "3"]
+      vb.customize ["modifyvm", :id, "--cpus", "2"]
 
       # Pass through USB control of attached USRP
-      vb.customize ['modifyvm', :id, '--usb', 'on']
-      vb.customize ['modifyvm', :id, '--usbehci', 'on']
-      vb.customize ['modifyvm', :id, '--usbxhci', 'on']
-      vb.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'B200mini',
-                    '--vendorid', '0x2500', '--productid', '0x0021']
-      vb.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'B200',
-                    '--vendorid', '0x2500', '--productid', '0x0020']
-      vb.customize ["modifyvm", :id, "--ioapic", "on"]
+      # vb.customize ['modifyvm', :id, '--usb', 'on']
+      # vb.customize ['modifyvm', :id, '--usbehci', 'on']
+      # vb.customize ['modifyvm', :id, '--usbxhci', 'on']
+      # vb.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'B200mini',
+      #               '--vendorid', '0x2500', '--productid', '0x0021']
+      # vb.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'B200',
+      #               '--vendorid', '0x2500', '--productid', '0x0020']
+      # vb.customize ["modifyvm", :id, "--ioapic", "on"]
     end
 
     rccn.vm.provision "ansible" do |ansible|

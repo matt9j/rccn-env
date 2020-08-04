@@ -15,6 +15,7 @@
       user:
         name: rhizomatica
         group: rhizomatica
+        uid: 2000
 
    - name: Install utilities for terminal interaction
      apt:

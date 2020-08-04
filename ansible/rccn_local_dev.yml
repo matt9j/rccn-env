@@ -16,12 +16,12 @@
         name: rhizomatica
         group: rhizomatica
 
-#    - name: Install utilities for terminal interaction
-#      apt:
-#        pkg: ['ccze', 'tmux', 'python3-dev', 'emacs-nox', 'usbutils']
-#        state: present
-#        update_cache: yes
-#        cache_valid_time: 600
+   - name: Install utilities for terminal interaction
+     apt:
+       pkg: ['ccze', 'tmux', 'python3-dev', 'emacs-nox', 'usbutils']
+       state: present
+       update_cache: yes
+       cache_valid_time: 600
 
     - name: Install puppet
       apt:
@@ -80,17 +80,17 @@
         path: "/var/lib/puppet/state"
         state: absent
 
-#    # Execute the rhizomatica automated install scripts.
-#    - name: Run puppet install once
-#      command: puppet agent --test --ignoreschedules
-#      # Ignore errors about the missing audio repos
-#      ignore_errors: true
+    # Execute the rhizomatica automated install scripts.
+    - name: Run puppet install once
+      command: puppet agent --test --ignoreschedules
+      # Ignore errors about the missing audio repos
+      ignore_errors: true
 
-#    - name: Run install configuration script
-#      command: python ./install.py -f
-#      args:
-#        chdir: /var/rhizomatica/rccn
+    - name: Run install configuration script
+      command: python ./install.py -f
+      args:
+        chdir: /var/rhizomatica/rccn
 
-#    - name: Reboot machine after install
-#      reboot:
-#        reboot_timeout: 60
+    - name: Reboot machine after install
+      reboot:
+        reboot_timeout: 60

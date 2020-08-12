@@ -17,12 +17,12 @@
         group: rhizomatica
         uid: 2000
 
-   - name: Install utilities for terminal interaction
-     apt:
-       pkg: ['ccze', 'tmux', 'python3-dev', 'emacs-nox', 'usbutils']
-       state: present
-       update_cache: yes
-       cache_valid_time: 600
+    - name: Install utilities for terminal interaction
+      apt:
+        pkg: ['ccze', 'tmux', 'python3-dev', 'emacs-nox', 'usbutils']
+        state: present
+        update_cache: yes
+        cache_valid_time: 600
 
     - name: Install puppet
       apt:
